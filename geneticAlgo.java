@@ -1,16 +1,17 @@
 import java.util.*;
 public class geneticAlgo {
-    static int PopSize = 100;
+    static int PopSize = 10;
     static int puzzle1PopSize = 40;
     static int binCount = 4;
     static int groupSize = 15;
     static int puzzle1GroupSize = 10;
-    static ArrayList<float[]> population = new ArrayList<float[]>();
-    static ArrayList<float[]> bestpopulation_puzzle1 = new ArrayList<float[]>();
-    static ArrayList<float[]> pastPopulation = new ArrayList<float[]>();
-    static int bestScore = 0;
+    static ArrayList<ArrayList<float[]>> population = new ArrayList<>();
+    static ArrayList<float[]> bestpopulation_puzzle1 = new ArrayList<>();
+    static String filename;
+    static double bestScore = 0;
     static int bestGen = 0;
     int fittest[] = {1,1,1,1,1,1,1,1,1,1};
+    /*
     public static void genPop (){
         for(int i = 0; i < PopSize; i++){
             float arr[] = new float [groupSize];
@@ -23,28 +24,26 @@ public class geneticAlgo {
             }
             System.out.println();
         }
-    }
-    public static void genPop_puzzle1 (ArrayList<Float> numberSet){
+    } */
+    public static void genPop_puzzle1 (){
+        ArrayList<Float> numberSet = ReadFile.read(filename);
+        ArrayList<float[]> currSet = new ArrayList<>();
     	float empty[] = new float [puzzle1GroupSize];
-    	population.add(0, empty);
-    	population.add(1, empty);
-    	population.add(2, empty);
-    	population.add(3, empty);
-    	
+    	currSet.add(0, empty);
+        currSet.add(1, empty);
+        currSet.add(2, empty);
+        currSet.add(3, empty);
+
     	Collections.shuffle(numberSet);
         for(int i = 0; i < binCount; i++){
         	float arr[] = new float [puzzle1GroupSize];
             for(int j = 0; j < puzzle1GroupSize; j++){
                 arr[j] = numberSet.remove(0);	//add the head
             }
-           
-            population.set(i, arr);
-            for(int x = 0; x < arr.length; x++){
-                //System.out.print(arr[x] + ",");
-            }
-            System.out.println();
+            currSet.set(i, arr);
         }
-    }
+        population.add(currSet);
+    } /*
     public static int checkFit(ArrayList<float[]> population2) {
         int maxFit = 0;
         for (int i = 0; i < population2.size(); i++) {
@@ -60,7 +59,7 @@ public class geneticAlgo {
         }
         return maxFit;
     }
-    
+    */
     public static float checkBinFitness(float[] bin, int binNumber)
     {
     	float result = -1;
@@ -109,9 +108,9 @@ public class geneticAlgo {
     	}
     	return result;
     }
-    public static int checkAllBinsFit(ArrayList<float[]> population)
+    public static float checkAllBinsFit(ArrayList<float[]> population)
     {
-    	int sum = 0;
+    	float sum = 0;
     	int binNumber = 1;
     	for (float[] bin : population)
 		{
@@ -120,25 +119,59 @@ public class geneticAlgo {
 		}
     	return sum;
     }
-    public static void replaceLeastFit(float[] child1, float[] child2){
-        pastPopulation = population;
-        int ind = getLeastFit();
-        int secInd = get2ndLeastFit();
+
+    public static void replaceLeastFit(ArrayList<float[]> child1, ArrayList<float[]> child2){
+        int ind = getLeastFitP1();
+        int secInd = get2ndLeastFitP1();
         population.set(ind, child1);
         population.set(secInd, child2);
     }
-    public static void genOffSpring(float[] parent1, float[] parent2){
-    	float[] child1 = parent1;
-    	float[] child2 = parent2;
-    	float temp = 0;
-        int crossoverPoint = (int) Math.floor(Math.random() * parent1.length);
-        for(int i = 0; i < crossoverPoint; i++){
-            temp = child1[i];
-        	child1[i] = parent2[i];
-            child2[i] = temp;
+    public static ArrayList<float[]> fixErrors (ArrayList<float[]> list){
+        ArrayList<Float> numberSet = ReadFile.read(filename);
+        ArrayList<int[]> repeatNum = new ArrayList<>();
+        for(int i = 0; i < list.size(); i++){
+            for (int j = 0; j < list.get(i).length; j++){
+                boolean numFound = false;
+                for(int z = 0; z < numberSet.size(); z++){
+
+                    if(list.get(i)[j] == numberSet.get(z)){
+                        numberSet.remove(z);
+                        z--;
+                        numFound = true;
+                        break;
+                    }
+                }
+                if(!numFound){
+                    int arr[] = {i, j};
+                    repeatNum.add(arr);
+                }
+            }
         }
+        if(!repeatNum.isEmpty()) {
+            int var = list.size();
+            for (int i = 0; i < repeatNum.size(); i++) {
+                list.get(repeatNum.get(i)[0])[repeatNum.get(i)[1]] = numberSet.remove(0);
+            }
+        }
+        return list;
+    }
+    public static void genOffSpring(ArrayList<float[]> parent1, ArrayList<float[]> parent2){
+    	ArrayList<float[]> child1 = parent1;
+    	ArrayList<float[]> child2 = parent2;
+    	float temp = 0;
+        int crossoverPoint = (int) Math.floor(Math.random() * puzzle1GroupSize);
+        for(int b = 0; b < parent1.size(); b++) {
+            for (int i = 0; i < crossoverPoint; i++) {
+                temp = child1.get(b)[i];
+                child1.get(b)[i] = parent2.get(b)[i];
+                child2.get(b)[i] = temp;
+            }
+        }
+        child1 = fixErrors(child1);
+        child2 = fixErrors(child2);
         replaceLeastFit(child1, child2);
     }
+    /*
     public static int get2ndFittest(){
         int maxFit = 0;
         int secondFit = 0;
@@ -179,46 +212,75 @@ public class geneticAlgo {
             }
         }
         return bestFit;
-    }
-    public static int getFittestBin(){
-        float maxFit = Integer.MIN_VALUE;
+    } */
+    public static int getFittestP1(){
+        float maxFitValue = Integer.MIN_VALUE;
         int bestFitIndex = 0;
-        int binNumber = 1;
-        for(float[] bin : population){
+        for(int i = 0; i < population.size(); i++){
             float currFit = 0;
-            currFit = checkBinFitness(bin, binNumber);
-            if (currFit > maxFit){
-                bestFitIndex = binNumber;
-                maxFit = currFit;
+            currFit = checkAllBinsFit(population.get(i));
+            if (currFit > maxFitValue){
+                bestFitIndex = i;
+                maxFitValue = currFit;
             }
-            binNumber++;
         }
         return bestFitIndex;
     }
-    public static int get2ndFittestBin(){
+    public static int get2ndFittestP1(){
         float maxFitValue = Integer.MIN_VALUE;
         int bestFitIndex = 0;
         int second_bestFitIndex = 0;
         float second_maxFitValue = Integer.MIN_VALUE;
-        int binNumber = 1;
-        
-        for(float[] bin : population){
+        for(int i = 0; i < population.size(); i++){
             float currFit = 0;
-            currFit = checkBinFitness(bin, binNumber);
+            currFit = checkAllBinsFit(population.get(i));
             if (currFit > maxFitValue){
-            	second_bestFitIndex = bestFitIndex;
-                bestFitIndex = binNumber;
+                second_bestFitIndex = bestFitIndex;
+                bestFitIndex = i;
                 maxFitValue = currFit;
             }
             else if (currFit > second_maxFitValue){
-            	second_maxFitValue = currFit;
-                second_bestFitIndex = binNumber;
+                second_maxFitValue = currFit;
+                second_bestFitIndex = i;
             }
-            binNumber++;
         }
-        second_bestFitIndex--;
         return second_bestFitIndex;
     }
+    public static int get2ndLeastFitP1(){
+        float minFitValue = Integer.MAX_VALUE;
+        int bestFitIndex = 0;
+        int second_bestFitIndex = 0;
+        float second_minFitValue = Integer.MAX_VALUE;
+        for(int i = 0; i < population.size(); i++){
+            float currFit = 0;
+            currFit = checkAllBinsFit(population.get(i));
+            if (currFit < minFitValue){
+                second_bestFitIndex = bestFitIndex;
+                bestFitIndex = i;
+                minFitValue = currFit;
+            }
+            else if (currFit < second_minFitValue){
+                second_minFitValue = currFit;
+                second_bestFitIndex = i;
+            }
+        }
+        return second_bestFitIndex;
+    }
+    public static int getLeastFitP1(){
+        float minFitValue = Integer.MAX_VALUE;
+        int bestFitIndex = 0;
+
+        for(int i = 0; i < population.size(); i++){
+            float currFit = 0;
+            currFit = checkAllBinsFit(population.get(i));
+            if (currFit < minFitValue){
+                bestFitIndex = i;
+                minFitValue = currFit;
+            }
+        }
+        return bestFitIndex;
+    }
+    /*
     public static int getLeastFit(){
         int minFit = 0;
         int bestFit = 0;
@@ -252,26 +314,28 @@ public class geneticAlgo {
             population.get(get2ndFittest())[mutationPoint] = 1;
         }
     }
-    
+    */
     public static void mutate_puzzle1()
     {
         Random rand = new Random();
-    	int mutationPoint = (int) Math.floor(Math.random() * puzzle1GroupSize);
-    	int mutationPoint2 = (int) Math.floor(Math.random() * puzzle1GroupSize);
-    	
     	float swapper1;
     	float swapper2;
-        int bin1 = rand.nextInt(4);
-        int bin2 = 0;
-        while(bin2 == bin1){
-            bin2 = rand.nextInt(4);
+        int mutated = rand.nextInt(PopSize);
+        int mutationCount = rand.nextInt(5);
+        for (int i = 0; i < mutationCount; i++){
+            int bin1 = rand.nextInt(4);
+            int bin2 = rand.nextInt(4);
+            while(bin2 == bin1){
+                bin2 = rand.nextInt(4);
+            }
+            int mutationPoint = rand.nextInt(puzzle1GroupSize);
+            int mutationPoint2 = rand.nextInt(puzzle1GroupSize);
+            swapper1 = population.get(mutated).get(bin1)[mutationPoint];
+            swapper2 = population.get(mutated).get(bin2)[mutationPoint2];
+            population.get(mutated).get(bin1)[mutationPoint] = swapper2;
+            population.get(mutated).get(bin2)[mutationPoint2] = swapper1;
         }
-        swapper1 = population.get(bin1)[mutationPoint];
-        swapper2 = population.get(bin2)[mutationPoint2];
-        population.get(bin1)[mutationPoint] = swapper2;
-        population.get(bin2)[mutationPoint2] = swapper1;
-        
-    }
+    } /*(
     public static int get2ndLeastFit(){
         int minFit = 0;
         int secondMinFit = 0;
@@ -297,102 +361,98 @@ public class geneticAlgo {
         }
         return secondMinIndex;
     }
-    
+    */
     public static void main(String[] args) {
+        filename = args[1];
     	int mode = Integer.parseInt(args[0]);
-    	String filename = args[1];
-    	switch(mode)
-    	{
-	    	case 0:
-	    	{
-	    		Random rand = new Random();
-	            genPop();
-	            int genCount = 0;
-	            while (checkFit(population) < 15) {			//was 15
-	                System.out.println("Generation: " + genCount + " Fitness: " + checkFit(population));
-	                if(rand.nextInt()%9 < 6){
-	                    mutate();
-	                }
-	                float[] parent1 = population.get(getFittestBin());
-	                float[] parent2 = population.get(get2ndFittestBin());
-	                genOffSpring(parent1, parent2);
-	                genCount++;
-	            }
-	            System.out.println("Solution found at in Generation: " + genCount + " at fitness: " + checkFit(population));
-	            break;
-	    	}
-	    	
-	    	case 1:
-	    	{
-	    		puzzle1();
-	    		Random rand = new Random();
-	    		ArrayList<Float> numberSet = ReadFile.read(filename);
-	    		genPop_puzzle1(numberSet);
-	    		printout();
-	    		
-	    		int genCount = 0;
-	    		int oneMillion = 10000000;
-                double startTime = System.currentTimeMillis();
-                double checkTime = Double.parseDouble(args[2])* 1000;
-                double endTime = 0;
-	            while (endTime-startTime < checkTime) {			//was 15
-	                System.out.println("Generation: " + genCount + " Fitness: " + checkAllBinsFit(population));
-                    if(bestScore < checkAllBinsFit(population)){
-                        bestScore = checkAllBinsFit(population);
+    	switch(mode) {
+
+            case 1: {
+                puzzle1();
+                Random rand = new Random();
+                for (int i = 0; i < PopSize; i++) {
+                    genPop_puzzle1();
+                }
+                int genCount = 0;
+                float startTime = System.nanoTime();
+                float checkTime = (Float.parseFloat(args[2])) * 1000000000;
+                float endTime = 0;
+                while (endTime - startTime < checkTime) {
+                    System.out.println("Generation: " + genCount + " Fitness " + checkAllBinsFit(population.get(getFittestP1())));
+                    if (bestScore < checkAllBinsFit(population.get(getFittestP1()))) {
+                        bestScore = checkAllBinsFit(population.get(getFittestP1()));
                         bestGen = genCount;
-                        Iterator<float[]> iterator = population.iterator();
+                        Iterator<float[]> iterator = population.get(getFittestP1()).iterator();
                         bestpopulation_puzzle1 = new ArrayList<>();
-                        while(iterator.hasNext()){
-                            bestpopulation_puzzle1.add((float[]) iterator.next().clone());
+                        while (iterator.hasNext()) {
+                            bestpopulation_puzzle1.add(iterator.next().clone());
                         }
                     }
-	                if(rand.nextInt()%9 > 6){
-	                	mutate_puzzle1();
-	                	System.out.println("* Mutation *");
-	                }
-                    int bin1 = rand.nextInt(4);
-                    int bin2 = rand.nextInt(4);
-                    while(bin2 == bin1){
-                        bin2 = rand.nextInt(4);
+                    if (rand.nextInt() % 9 > 6) {
+                        mutate_puzzle1();
+                        System.out.println("* Mutation *");
                     }
-	                float[] parent1 = population.get(bin1);
-	                float[] parent2 = population.get(bin2);
-	                genOffSpring(parent1, parent2);
-	                genCount++;
-                    endTime = System.currentTimeMillis();
-	            }
-                System.out.println("Ran for: " + args[2] + " seconds" );
-	            System.out.println("Solution found at in Generation: " + bestGen + " at fitness: " + bestScore);
-	            printout_withfit();
-	            break;
-	    	}
-    	}
+                    ArrayList<float[]> parent1 = population.get(getFittestP1());
+                    ArrayList<float[]> parent2 = population.get(get2ndFittestP1());
+                    genOffSpring(parent1, parent2);
+                    genCount++;
+                    endTime = System.nanoTime();
+                }
+                System.out.println("Ran for: " + args[2] + " seconds");
+                System.out.println("Solution found at in Generation: " + bestGen + " at fitness: " + bestScore);
+                printout_oneBin();
+                break;
+            }
+        }
     }
-    
+
+
+
     public static void printout()
     {
-    	for (float[] bin : population)
+        for(int i = 0; i < PopSize; i++)
 		{
-			for (float e : bin)
-    		{
-    			System.out.print(e + "\t");
-    		}
-			System.out.print("\n");
-		}
+            System.out.println(i);
+            for (float[] bin : population.get(i))
+            {
+                for (float e : bin)
+                {
+                    System.out.print(e + "\t");
+                }
+                System.out.print("\n");
+            }
+        }
+    }
+    public static void printout_oneBin(){
+        int binNumber = 1;
+        for (float[] bin : bestpopulation_puzzle1)
+        {
+            for (float e : bin)
+            {
+                System.out.print(e + "\t");
+            }
+            System.out.print("Bin: " + binNumber + " Fitness: " + checkBinFitness(bin, binNumber));
+            System.out.print("\n");
+            binNumber++;
+        }
     }
     public static void printout_withfit()
     {
-    	int binNumber = 1;
-    	for (float[] bin : bestpopulation_puzzle1)
-		{
-			for (float e : bin)
-    		{
-    			System.out.print(e + "\t");
-    		}
-			System.out.print("Bin Fitness: " + checkBinFitness(bin, binNumber));
-			System.out.print("\n");
-			binNumber++;
-		}
+        for(int i = 0; i < PopSize; i++)
+        {
+            System.out.println(i);
+            int binNumber = 1;
+            for (float[] bin : population.get(i))
+            {
+                for (float e : bin)
+                {
+                    System.out.print(e + "\t");
+                }
+                System.out.print("Bin: " + binNumber + " Fitness: " + checkBinFitness(bin, binNumber));
+                System.out.print("\n");
+                binNumber++;
+            }
+        }
     }
     public static void puzzle1()
     {
