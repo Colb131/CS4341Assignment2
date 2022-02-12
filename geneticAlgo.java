@@ -8,6 +8,8 @@ public class geneticAlgo {
     static ArrayList<float[]> population = new ArrayList<float[]>();
     static ArrayList<float[]> bestpopulation_puzzle1 = new ArrayList<float[]>();
     static ArrayList<float[]> pastPopulation = new ArrayList<float[]>();
+    static int bestScore = 0;
+    static int bestGen = 0;
     int fittest[] = {1,1,1,1,1,1,1,1,1,1};
     public static void genPop (){
         for(int i = 0; i < PopSize; i++){
@@ -208,12 +210,13 @@ public class geneticAlgo {
                 bestFitIndex = binNumber;
                 maxFitValue = currFit;
             }
-            if (currFit > second_maxFitValue){
+            else if (currFit > second_maxFitValue){
             	second_maxFitValue = currFit;
                 second_bestFitIndex = binNumber;
             }
             binNumber++;
         }
+        second_bestFitIndex--;
         return second_bestFitIndex;
     }
     public static int getLeastFit(){
@@ -252,15 +255,21 @@ public class geneticAlgo {
     
     public static void mutate_puzzle1()
     {
+        Random rand = new Random();
     	int mutationPoint = (int) Math.floor(Math.random() * puzzle1GroupSize);
     	int mutationPoint2 = (int) Math.floor(Math.random() * puzzle1GroupSize);
     	
     	float swapper1;
     	float swapper2;
-        swapper1 = population.get(getFittest())[mutationPoint];
-        swapper2 = population.get(get2ndFittest())[mutationPoint2];
-        population.get(getFittest())[mutationPoint] = swapper2;
-        population.get(get2ndFittest())[mutationPoint2] = swapper1;
+        int bin1 = rand.nextInt(4);
+        int bin2 = 0;
+        while(bin2 == bin1){
+            bin2 = rand.nextInt(4);
+        }
+        swapper1 = population.get(bin1)[mutationPoint];
+        swapper2 = population.get(bin2)[mutationPoint2];
+        population.get(bin1)[mutationPoint] = swapper2;
+        population.get(bin2)[mutationPoint2] = swapper1;
         
     }
     public static int get2ndLeastFit(){
@@ -319,24 +328,41 @@ public class geneticAlgo {
 	    		Random rand = new Random();
 	    		ArrayList<Float> numberSet = ReadFile.read(filename);
 	    		genPop_puzzle1(numberSet);
-	    		//System.out.println(population.get(1));
-	    		//System.out.println(population.get(2));
 	    		printout();
 	    		
 	    		int genCount = 0;
-	    		int oneMillion = 1000000;
-	            while (checkAllBinsFit(population) < oneMillion*3 && genCount < 400) {			//was 15
+	    		int oneMillion = 10000000;
+                double startTime = System.currentTimeMillis();
+                double checkTime = Double.parseDouble(args[2])* 1000;
+                double endTime = 0;
+	            while (endTime-startTime < checkTime) {			//was 15
 	                System.out.println("Generation: " + genCount + " Fitness: " + checkAllBinsFit(population));
+                    if(bestScore < checkAllBinsFit(population)){
+                        bestScore = checkAllBinsFit(population);
+                        bestGen = genCount;
+                        Iterator<float[]> iterator = population.iterator();
+                        bestpopulation_puzzle1 = new ArrayList<>();
+                        while(iterator.hasNext()){
+                            bestpopulation_puzzle1.add((float[]) iterator.next().clone());
+                        }
+                    }
 	                if(rand.nextInt()%9 > 6){
 	                	mutate_puzzle1();
 	                	System.out.println("* Mutation *");
 	                }
-	                float[] parent1 = population.get(getFittestBin());
-	                float[] parent2 = population.get(get2ndFittestBin());
+                    int bin1 = rand.nextInt(4);
+                    int bin2 = rand.nextInt(4);
+                    while(bin2 == bin1){
+                        bin2 = rand.nextInt(4);
+                    }
+	                float[] parent1 = population.get(bin1);
+	                float[] parent2 = population.get(bin2);
 	                genOffSpring(parent1, parent2);
 	                genCount++;
+                    endTime = System.currentTimeMillis();
 	            }
-	            System.out.println("Solution found at in Generation: " + genCount + " at fitness: " + checkAllBinsFit(population));
+                System.out.println("Ran for: " + args[2] + " seconds" );
+	            System.out.println("Solution found at in Generation: " + bestGen + " at fitness: " + bestScore);
 	            printout_withfit();
 	            break;
 	    	}
@@ -357,7 +383,7 @@ public class geneticAlgo {
     public static void printout_withfit()
     {
     	int binNumber = 1;
-    	for (float[] bin : population)
+    	for (float[] bin : bestpopulation_puzzle1)
 		{
 			for (float e : bin)
     		{
