@@ -140,7 +140,10 @@ public class geneticAlgo {
         }
         child1 = fixErrors(child1);
         child2 = fixErrors(child2);
-        replace(child1, child2);
+        //replaceLeastFit(child1, child2);
+        population.add(child1);
+        population.add(child2);
+        PopSize += 2;
     }
     public static int getFittestP1(){
         float maxFitValue = Integer.MIN_VALUE;
