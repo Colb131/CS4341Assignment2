@@ -3,28 +3,12 @@ public class geneticAlgo {
     static int PopSize = 10;
     static int puzzle1PopSize = 40;
     static int binCount = 4;
-    static int groupSize = 15;
     static int puzzle1GroupSize = 10;
     static ArrayList<ArrayList<float[]>> population = new ArrayList<>();
     static ArrayList<float[]> bestpopulation_puzzle1 = new ArrayList<>();
     static String filename;
     static double bestScore = 0;
     static int bestGen = 0;
-    int fittest[] = {1,1,1,1,1,1,1,1,1,1};
-    /*
-    public static void genPop (){
-        for(int i = 0; i < PopSize; i++){
-            float arr[] = new float [groupSize];
-            for(int j = 0; j < groupSize; j++){
-                arr[j] = (int) Math.floor(Math.random() * 2);
-            }
-            population.add(arr);
-            for(int x = 0; x < arr.length; x++){
-                System.out.print(arr[x] + ",");
-            }
-            System.out.println();
-        }
-    } */
     public static void genPop_puzzle1 (){
         ArrayList<Float> numberSet = ReadFile.read(filename);
         ArrayList<float[]> currSet = new ArrayList<>();
@@ -43,23 +27,7 @@ public class geneticAlgo {
             currSet.set(i, arr);
         }
         population.add(currSet);
-    } /*
-    public static int checkFit(ArrayList<float[]> population2) {
-        int maxFit = 0;
-        for (int i = 0; i < population2.size(); i++) {
-            int currFit = 0;
-            for (int j = 0; j < population2.get(i).length; j++) {
-                if (population2.get(i)[j] == 1) {
-                    currFit++;
-                }
-            }
-            if(maxFit < currFit){
-                maxFit = currFit;
-            }
-        }
-        return maxFit;
     }
-    */
     public static float checkBinFitness(float[] bin, int binNumber)
     {
     	float result = -1;
@@ -120,9 +88,13 @@ public class geneticAlgo {
     	return sum;
     }
 
-    public static void replaceLeastFit(ArrayList<float[]> child1, ArrayList<float[]> child2){
-        int ind = getLeastFitP1();
-        int secInd = get2ndLeastFitP1();
+    public static void replace(ArrayList<float[]> child1, ArrayList<float[]> child2){
+        Random rand = new Random();
+        int ind = rand.nextInt(PopSize);
+        int secInd =  rand.nextInt(PopSize);
+        while(secInd == ind){
+            secInd =  rand.nextInt(PopSize);
+        }
         population.set(ind, child1);
         population.set(secInd, child2);
     }
@@ -148,7 +120,6 @@ public class geneticAlgo {
             }
         }
         if(!repeatNum.isEmpty()) {
-            int var = list.size();
             for (int i = 0; i < repeatNum.size(); i++) {
                 list.get(repeatNum.get(i)[0])[repeatNum.get(i)[1]] = numberSet.remove(0);
             }
@@ -169,50 +140,8 @@ public class geneticAlgo {
         }
         child1 = fixErrors(child1);
         child2 = fixErrors(child2);
-        replaceLeastFit(child1, child2);
+        replace(child1, child2);
     }
-    /*
-    public static int get2ndFittest(){
-        int maxFit = 0;
-        int secondFit = 0;
-        int maxIndex = 0;
-        int secondIndex = 0;
-        for(int i = 0; i < population.size(); i++){
-            int currFit = 0;
-            for(int j = 0; j < population.get(i).length; j++){
-                if(population.get(i)[j] == 1){
-                    currFit++;
-                }
-            }
-            if (currFit > maxFit){
-                secondIndex = maxIndex;
-                maxIndex = i;
-                maxFit = currFit;
-            }
-            else if (currFit > secondFit){
-                secondFit = currFit;
-                secondIndex = i;
-            }
-        }
-        return secondIndex;
-    }
-    public static int getFittest(){
-        int maxFit = 0;
-        int bestFit = 0;
-        for(int i = 0; i < population.size(); i++){
-            int currFit = 0;
-            for(int j = 0; j < population.get(i).length; j++){
-                if(population.get(i)[j] == 1){
-                    currFit++;
-                }
-            }
-            if (currFit > maxFit){
-                bestFit = i;
-                maxFit = currFit;
-            }
-        }
-        return bestFit;
-    } */
     public static int getFittestP1(){
         float maxFitValue = Integer.MIN_VALUE;
         int bestFitIndex = 0;
@@ -280,41 +209,6 @@ public class geneticAlgo {
         }
         return bestFitIndex;
     }
-    /*
-    public static int getLeastFit(){
-        int minFit = 0;
-        int bestFit = 0;
-        for(int i = 0; i < population.size(); i++){
-            int currFit = 0;
-            for(int j = 0; j < population.get(i).length; j++){
-                if(population.get(i)[j] == 0){
-                    currFit++;
-                }
-            }
-            if (currFit  > minFit){
-                bestFit = i;
-                minFit = currFit;
-            }
-        }
-        return bestFit;
-    }
-    public static void mutate(){
-        int mutationPoint = (int) Math.floor(Math.random() * groupSize);
-        if(population.get(getFittest())[mutationPoint] == 1){
-            population.get(getFittest())[mutationPoint] = 0;
-        }
-        else{
-            population.get(getFittest())[mutationPoint] = 1;
-        }
-        mutationPoint = (int) Math.floor(Math.random() * groupSize);
-        if(population.get(get2ndFittest())[mutationPoint] == 1){
-            population.get(get2ndFittest())[mutationPoint] = 0;
-        }
-        else{
-            population.get(get2ndFittest())[mutationPoint] = 1;
-        }
-    }
-    */
     public static void mutate_puzzle1()
     {
         Random rand = new Random();
@@ -335,33 +229,7 @@ public class geneticAlgo {
             population.get(mutated).get(bin1)[mutationPoint] = swapper2;
             population.get(mutated).get(bin2)[mutationPoint2] = swapper1;
         }
-    } /*(
-    public static int get2ndLeastFit(){
-        int minFit = 0;
-        int secondMinFit = 0;
-        int secondMinIndex = 0;
-        int minIndex = 0;
-        for(int i = 0; i < population.size(); i++){
-            int currFit = 0;
-            for(int j = 0; j < population.get(i).length; j++){
-                if(population.get(i)[j] == 0){
-                    currFit++;
-                }
-            }
-            if (currFit  > minFit){
-                secondMinIndex = minIndex;
-                minIndex = i;
-                minFit = currFit;
-            }
-            else if (currFit > secondMinFit){
-                secondMinFit = currFit;
-                secondMinIndex = i;
-
-            }
-        }
-        return secondMinIndex;
     }
-    */
     public static void main(String[] args) {
         filename = args[1];
     	int mode = Integer.parseInt(args[0]);
