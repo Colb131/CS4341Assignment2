@@ -379,6 +379,9 @@ public class geneticAlgo {
                 float endTime = 0;
                 while (endTime - startTime < checkTime) {
                     System.out.println("Generation: " + genCount + " Fitness " + checkAllBinsFit(population.get(getFittestP1())));
+//                    if (genCount%100 == 1){
+//                        System.out.println(checkAllBinsFit(population.get(getFittestP1())));
+//                    }
                     if (bestScore < checkAllBinsFit(population.get(getFittestP1()))) {
                         bestScore = checkAllBinsFit(population.get(getFittestP1()));
                         bestGen = genCount;
