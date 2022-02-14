@@ -10,6 +10,12 @@ public class Tower {
         height = input.size();
         score = calcScore();
     }
+    public Tower(Tower t2)
+    {
+    	tower.addAll(t2.tower);
+        height = t2.height;
+        score = calcScore();
+    }
     public int calcScore (){
         int totCost = 0;
         if(!tower.get(0).type.equals("Door")){
