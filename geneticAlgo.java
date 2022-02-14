@@ -14,21 +14,6 @@ public class geneticAlgo {
     static String filename;
     static double bestScore = -1;
     static int bestGen = 0;
-    int fittest[] = {1,1,1,1,1,1,1,1,1,1};
-    /*
-    public static void genPop (){
-        for(int i = 0; i < PopSize; i++){
-            float arr[] = new float [groupSize];
-            for(int j = 0; j < groupSize; j++){
-                arr[j] = (int) Math.floor(Math.random() * 2);
-            }
-            population.add(arr);
-            for(int x = 0; x < arr.length; x++){
-                System.out.print(arr[x] + ",");
-            }
-            System.out.println();
-        }
-    } */
     public static void genPop_puzzle1 (){
         ArrayList<Float> numberSet = ReadFile.read(filename);
         ArrayList<float[]> currSet = new ArrayList<>();
@@ -99,23 +84,7 @@ public class geneticAlgo {
         //}
         //population.add(currSet);
     }
-    /*
-    public static int checkFit(ArrayList<float[]> population2) {
-        int maxFit = 0;
-        for (int i = 0; i < population2.size(); i++) {
-            int currFit = 0;
-            for (int j = 0; j < population2.get(i).length; j++) {
-                if (population2.get(i)[j] == 1) {
-                    currFit++;
-                }
-            }
-            if(maxFit < currFit){
-                maxFit = currFit;
-            }
-        }
-        return maxFit;
-    }
-    */
+
     public static float checkBinFitness(float[] bin, int binNumber)
     {
     	float result = -1;
@@ -211,7 +180,6 @@ public class geneticAlgo {
             }
         }
         if(!repeatNum.isEmpty()) {
-            int var = list.size();
             for (int i = 0; i < repeatNum.size(); i++) {
                 list.get(repeatNum.get(i)[0])[repeatNum.get(i)[1]] = numberSet.remove(0);
             }
@@ -219,8 +187,22 @@ public class geneticAlgo {
         return list;
     }
     public static void genOffSpring(ArrayList<float[]> parent1, ArrayList<float[]> parent2){
-    	ArrayList<float[]> child1 = parent1;
-    	ArrayList<float[]> child2 = parent2;
+        ArrayList<float[]> child1 = new ArrayList<>();
+        ArrayList<float[]> child2 = new ArrayList<>();
+        Iterator<float[]> iterator = population.get(getFittestP1()).iterator();
+        Iterator<float[]> iterator2 = population.get(getFittestP1()).iterator();
+        while (iterator.hasNext()) {
+            float[] arr;
+            float[] arr2 = iterator.next().clone();
+            arr = arr2.clone();
+            child1.add(arr);
+        }
+        while (iterator2.hasNext()) {
+            float[] arr;
+            float[] arr2 = iterator2.next().clone();
+            arr = arr2.clone();
+            child2.add(arr);
+        }
     	float temp = 0;
         int crossoverPoint = (int) Math.floor(Math.random() * puzzle1GroupSize);
         for(int b = 0; b < parent1.size(); b++) {
@@ -263,48 +245,6 @@ public class geneticAlgo {
         //child2 = fixErrors(child2);
         replaceLeastFit_P2(child1, child2);
     }
-    /*
-    public static int get2ndFittest(){
-        int maxFit = 0;
-        int secondFit = 0;
-        int maxIndex = 0;
-        int secondIndex = 0;
-        for(int i = 0; i < population.size(); i++){
-            int currFit = 0;
-            for(int j = 0; j < population.get(i).length; j++){
-                if(population.get(i)[j] == 1){
-                    currFit++;
-                }
-            }
-            if (currFit > maxFit){
-                secondIndex = maxIndex;
-                maxIndex = i;
-                maxFit = currFit;
-            }
-            else if (currFit > secondFit){
-                secondFit = currFit;
-                secondIndex = i;
-            }
-        }
-        return secondIndex;
-    }
-    public static int getFittest(){
-        int maxFit = 0;
-        int bestFit = 0;
-        for(int i = 0; i < population.size(); i++){
-            int currFit = 0;
-            for(int j = 0; j < population.get(i).length; j++){
-                if(population.get(i)[j] == 1){
-                    currFit++;
-                }
-            }
-            if (currFit > maxFit){
-                bestFit = i;
-                maxFit = currFit;
-            }
-        }
-        return bestFit;
-    } */
     public static int getFittestP1(){
         float maxFitValue = Integer.MIN_VALUE;
         int bestFitIndex = 0;
