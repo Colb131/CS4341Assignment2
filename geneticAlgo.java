@@ -156,7 +156,7 @@ public class geneticAlgo {
         int secInd = get2ndLeastFitP2();
         population_puzzle2.set(ind, child1);
         population_puzzle2.set(secInd, child2);
-        System.out.println("Crossover");
+        //System.out.println("Crossover");
     }
     public static ArrayList<float[]> fixErrors (ArrayList<float[]> list){
         ArrayList<Float> numberSet = ReadFile.read(filename);
@@ -629,37 +629,30 @@ public class geneticAlgo {
     	float checkTime = (Float.parseFloat(timer)) * 1000000000;
     	float endTime = 0;
     	while (endTime - startTime < checkTime) {
-    		System.out.println("Generation: " + genCount + " Fitness " + checkTowerFitness(population_puzzle2.get(getFittestP2())));
+            if(genCount % 10000 == 0) {
+                System.out.println("Generation: " + genCount + " Fitness " + checkTowerFitness(population_puzzle2.get(getFittestP2())));
+            }
     		if (bestScore < checkTowerFitness(population_puzzle2.get(getFittestP2()))) {
     			bestScore = checkTowerFitness(population_puzzle2.get(getFittestP2()));
     			bestGen = genCount;
-    			//Iterator<Tower> iterator = population_puzzle2.iterator();
 
     			bestTower = new Tower(population_puzzle2.get(getFittestP2()));
     			System.out.print("NEW BEST (not zero): " + population_puzzle2.get(getFittestP2()).calcScore()+"\n");
     			bestTower.printout();
     			System.out.print("Fitness: " + checkTowerFitness(bestTower));
     			System.out.print("\n\n");
-    			//              		return;
-    			//                 if(bestScore > 0)
-    			//                 {
-    			//                	 population_puzzle2.get(getFittestP2()).printout();
-    			//                	 System.out.print("Fitness: " + population_puzzle2.get(getFittestP2()).calcScore());
-    			//                  	System.out.print("\n\n");
-    			//                	 return;
-    			//                 }
     		}
     		if (rand.nextInt() % 15 > 12) {
     			mutate_puzzle2("remove");
-    			System.out.println("* Mutation - REMOVE*");
+    			//System.out.println("* Mutation - REMOVE*");
     		}
     		else if (rand.nextInt() % 15 > 10) {
     			mutate_puzzle2("add");
-    			System.out.println("* Mutation - ADD *");
+    			//System.out.println("* Mutation - ADD *");
     		}
     		else if (rand.nextInt() % 15 > 8) {
     			mutate_puzzle2("add");
-    			System.out.println("* Mutation - SWAP *");
+    			//System.out.println("* Mutation - SWAP *");
     		}
     		Tower parent1 = population_puzzle2.get(getFittestP2());
     		Tower parent2 = population_puzzle2.get(get2ndFittestP2());
