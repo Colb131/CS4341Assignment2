@@ -88,10 +88,10 @@ public class geneticAlgo {
     	return sum;
     }
 
-    public static void replace(ArrayList<float[]> child1, ArrayList<float[]> child2){
+    public static void replaceMostFit(ArrayList<float[]> child1, ArrayList<float[]> child2){
         Random rand = new Random();
-        int ind = rand.nextInt(PopSize);
-        int secInd =  rand.nextInt(PopSize);
+        int ind = getFittestP1();
+        int secInd =  get2ndFittestP1();
         while(secInd == ind){
             secInd =  rand.nextInt(PopSize);
         }
@@ -140,10 +140,7 @@ public class geneticAlgo {
         }
         child1 = fixErrors(child1);
         child2 = fixErrors(child2);
-        //replaceLeastFit(child1, child2);
-        population.add(child1);
-        population.add(child2);
-        PopSize += 2;
+        replaceMostFit(child1, child2);
     }
     public static int getFittestP1(){
         float maxFitValue = Integer.MIN_VALUE;
