@@ -7,6 +7,10 @@ public class geneticAlgo {
     static int puzzle1GroupSize = 10;
     static ArrayList<ArrayList<float[]>> population = new ArrayList<>();
     static ArrayList<float[]> bestpopulation_puzzle1 = new ArrayList<>();
+    
+    static ArrayList<Tower> population_puzzle2 = new ArrayList<>();
+    //static ArrayList<float[]> bestpopulation_puzzle2 = new ArrayList<>();
+    
     static String filename;
     static double bestScore = 0;
     static int bestGen = 0;
@@ -43,7 +47,47 @@ public class geneticAlgo {
             currSet.set(i, arr);
         }
         population.add(currSet);
-    } /*
+    }
+    public static void genPop_puzzle2 (ArrayList<TowerPiece> pieces){
+        //ArrayList<Float> numberSet = ReadFile.read(filename);
+        ArrayList<float[]> currSet = new ArrayList<>();
+//    	float empty[] = new float [puzzle1GroupSize];
+//    	currSet.add(0, empty);
+//        currSet.add(1, empty);
+//        currSet.add(2, empty);
+//        currSet.add(3, empty);
+        for(int i = 0; i<10; i++)
+        {
+        	ArrayList<TowerPiece> shufflePieces = pieces;
+        	//Collections.shuffle(shufflePieces, new Random());
+        	//System.out.print(shufflePieces);
+        	Tower towerX  = new Tower(shufflePieces);
+        	population_puzzle2.add(towerX);
+        	towerX.printout();
+        	System.out.print("\n");
+        }
+        
+        
+//        for(Tower t : population_puzzle2)
+//        {
+//        	//Collections.shuffle(pieces);
+////        	Tower towerX  = new Tower(pieces);
+////        	population_puzzle2.add(towerX);
+//        	t.printout();
+//        	System.out.print("xxxFitness: " + checkTowerFitness(t));
+//        	System.out.print("\n\n");
+//        }
+        System.out.print("Pop Size:" + population_puzzle2.size());
+        //for(int i = 0; i < binCount; i++){
+        	//float arr[] = new float [puzzle1GroupSize];
+            //for(int j = 0; j < puzzle1GroupSize; j++){
+                //arr[j] = numberSet.remove(0);	//add the head
+            //}
+            //currSet.set(i, arr);
+        //}
+        //population.add(currSet);
+    }
+    /*
     public static int checkFit(ArrayList<float[]> population2) {
         int maxFit = 0;
         for (int i = 0; i < population2.size(); i++) {
@@ -246,6 +290,39 @@ public class geneticAlgo {
         }
         return second_bestFitIndex;
     }
+    public static int getFittestP2(){
+        float maxFitValue = Integer.MIN_VALUE;
+        int bestFitIndex = 0;
+        for(int i = 0; i < population_puzzle2.size(); i++){
+            float currFit = 0;
+            currFit = checkTowerFitness(population_puzzle2.get(i));
+            if (currFit > maxFitValue){
+                bestFitIndex = i;
+                maxFitValue = currFit;
+            }
+        }
+        return bestFitIndex;
+    }
+    public static int get2ndFittestP2(){
+        float maxFitValue = Integer.MIN_VALUE;
+        int bestFitIndex = 0;
+        int second_bestFitIndex = 0;
+        float second_maxFitValue = Integer.MIN_VALUE;
+        for(int i = 0; i < population_puzzle2.size(); i++){
+            float currFit = 0;
+            currFit = (population_puzzle2.get(i).calcScore());
+            if (currFit > maxFitValue){
+                second_bestFitIndex = bestFitIndex;
+                bestFitIndex = i;
+                maxFitValue = currFit;
+            }
+            else if (currFit > second_maxFitValue){
+                second_maxFitValue = currFit;
+                second_bestFitIndex = i;
+            }
+        }
+        return second_bestFitIndex;
+    }
     public static int get2ndLeastFitP1(){
         float minFitValue = Integer.MAX_VALUE;
         int bestFitIndex = 0;
@@ -315,6 +392,12 @@ public class geneticAlgo {
         }
     }
     */
+    
+    private static int checkTowerFitness(Tower tower) {
+		
+		return tower.calcScore();
+	}
+    
     public static void mutate_puzzle1()
     {
         Random rand = new Random();
@@ -403,6 +486,11 @@ public class geneticAlgo {
                 printout_oneBin();
                 break;
             }
+            case 2: {
+            	String timer = args[2];
+            	puzzle2(timer);
+            	break;
+            }
         }
     }
 
@@ -458,4 +546,50 @@ public class geneticAlgo {
     {
     	System.out.println("this is puzzle 1.");
     }
+    public static void puzzle2(String timer)
+    {
+    	System.out.println("this is puzzle 2.");
+    	ArrayList<TowerPiece> pieces = ReadFile.read2(filename);
+    	Random rand = new Random();
+    	genPop_puzzle2(pieces);
+    	int genCount = 0;
+    	float startTime = System.nanoTime();
+    	float checkTime = (Float.parseFloat(timer)) * 1000000000;
+    	float endTime = 0;
+    	while (endTime - startTime < checkTime) {
+             //System.out.println("Generation: " + genCount + " Fitness " + checkTowerFitness(population_puzzle2.get(getFittestP2())));
+//             if (bestScore < checkAllBinsFit(population.get(getFittestP1()))) {
+//                 bestScore = checkAllBinsFit(population.get(getFittestP1()));
+//                 bestGen = genCount;
+//                 Iterator<float[]> iterator = population.get(getFittestP1()).iterator();
+//                 bestpopulation_puzzle1 = new ArrayList<>();
+//                 while (iterator.hasNext()) {
+//                     bestpopulation_puzzle1.add(iterator.next().clone());
+//                 }
+//             }
+//             if (rand.nextInt() % 9 > 6) {
+//                 mutate_puzzle1();
+//                 System.out.println("* Mutation *");
+//             }
+//             ArrayList<float[]> parent1 = population.get(getFittestP1());
+//             ArrayList<float[]> parent2 = population.get(get2ndFittestP1());
+//             genOffSpring(parent1, parent2);
+             genCount++;
+             endTime = System.nanoTime();
+         }
+         System.out.println("Ran for: " + timer + " seconds");
+         System.out.println("Solution found at in Generation: " + bestGen + " at fitness: " + bestScore);
+         
+         for(Tower t : population_puzzle2)
+         {
+         	//Collections.shuffle(pieces);
+//         	Tower towerX  = new Tower(pieces);
+//         	population_puzzle2.add(towerX);
+         	t.printout();
+         	System.out.print("Fitness: " + checkTowerFitness(t));
+         	System.out.print("\n\n");
+         }
+         System.out.print("Pop Size:" + population_puzzle2.size());
+    }
+	
 }
