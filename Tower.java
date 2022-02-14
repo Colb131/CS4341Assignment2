@@ -89,8 +89,9 @@ public class Tower {
     }
     public void printout()
     {
-    	for(TowerPiece p : tower)
+    	for(int i = tower.size()-1; i > -1; i--)
     	{
+            TowerPiece p = tower.get(i);
 	    	  System.out.print(p.type + "\t");
 	    	  System.out.print(p.width + "\t");
 	    	  System.out.print(p.strength + "\t");
