@@ -127,8 +127,22 @@ public class geneticAlgo {
         return list;
     }
     public static void genOffSpring(ArrayList<float[]> parent1, ArrayList<float[]> parent2){
-    	ArrayList<float[]> child1 = parent1;
-    	ArrayList<float[]> child2 = parent2;
+    	ArrayList<float[]> child1 = new ArrayList<>();
+    	ArrayList<float[]> child2 = new ArrayList<>();
+        Iterator<float[]> iterator = population.get(getFittestP1()).iterator();
+        Iterator<float[]> iterator2 = population.get(getFittestP1()).iterator();
+        while (iterator.hasNext()) {
+            float[] arr = new float[puzzle1GroupSize];
+            float[] arr2 = iterator.next().clone();
+            arr = arr2.clone();
+            child1.add(arr);
+        }
+        while (iterator2.hasNext()) {
+            float[] arr = new float[puzzle1GroupSize];
+            float[] arr2 = iterator2.next().clone();
+            arr = arr2.clone();
+            child2.add(arr);
+        }
     	float temp = 0;
         int crossoverPoint = (int) Math.floor(Math.random() * puzzle1GroupSize);
         for(int b = 0; b < parent1.size(); b++) {
@@ -271,7 +285,7 @@ public class geneticAlgo {
                 }
                 System.out.println("Ran for: " + args[2] + " seconds");
                 System.out.println("Solution found at in Generation: " + bestGen + " at fitness: " + bestScore);
-                printout_oneBin();
+                printout_oneBin(bestpopulation_puzzle1);
                 break;
             }
         }
@@ -294,9 +308,9 @@ public class geneticAlgo {
             }
         }
     }
-    public static void printout_oneBin(){
+    public static void printout_oneBin(ArrayList<float[]> puzzle){
         int binNumber = 1;
-        for (float[] bin : bestpopulation_puzzle1)
+        for (float[] bin : puzzle)
         {
             for (float e : bin)
             {
