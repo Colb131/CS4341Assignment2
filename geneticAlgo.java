@@ -1,9 +1,7 @@
 import java.util.*;
 public class geneticAlgo {
-    static int PopSize = 10;
-    static int puzzle1PopSize = 40;
+    static int PopSize = 10; // used for puzzle1
     static int binCount = 4;
-    static int groupSize = 15;
     static int puzzle1GroupSize = 10;
     static ArrayList<ArrayList<float[]>> population = new ArrayList<>();
     static ArrayList<float[]> bestpopulation_puzzle1 = new ArrayList<>();
@@ -34,55 +32,19 @@ public class geneticAlgo {
         population.add(currSet);
     }
     public static void genPop_puzzle2 (ArrayList<TowerPiece> pieces){
-        //ArrayList<Float> numberSet = ReadFile.read(filename);
         ArrayList<float[]> currSet = new ArrayList<>();
-//    	float empty[] = new float [puzzle1GroupSize];
-//    	currSet.add(0, empty);
-//        currSet.add(1, empty);
-//        currSet.add(2, empty);
-//        currSet.add(3, empty);
         for(int i = 0; i<10; i++)
         {
         	ArrayList<TowerPiece> shufflePieces = pieces;
         	Collections.shuffle(shufflePieces, new Random());
         	int x = new Random().nextInt(shufflePieces.size()-1)+1;
         	int y = new Random().nextInt(x);
-        	//List<TowerPiece> selectPieces = shufflePieces.subList(y, x);
         	ArrayList<TowerPiece> out = new ArrayList<TowerPiece>();
-//        	for (TowerPiece tp : shufflePieces)
-//        	{
-//        		if (!(selectPieces.contains(tp)))
-//        		{
-//        			out.add(tp);
-//z
-//        		}
-//        	}
-        	//System.out.print(shufflePieces);
         	Tower towerX  = new Tower(new ArrayList<TowerPiece>(), shufflePieces);
         	population_puzzle2.add(towerX);
-        	//towerX.printout();
         	System.out.print("\n");
         }
-        
-        
-//        for(Tower t : population_puzzle2)
-//        {
-//        	//Collections.shuffle(pieces);
-////        	Tower towerX  = new Tower(pieces);
-////        	population_puzzle2.add(towerX);
-//        	t.printout();
-//        	System.out.print("xxxFitness: " + checkTowerFitness(t));
-//        	System.out.print("\n\n");
-//        }
         System.out.print("Pop Size:" + population_puzzle2.size());
-        //for(int i = 0; i < binCount; i++){
-        	//float arr[] = new float [puzzle1GroupSize];
-            //for(int j = 0; j < puzzle1GroupSize; j++){
-                //arr[j] = numberSet.remove(0);	//add the head
-            //}
-            //currSet.set(i, arr);
-        //}
-        //population.add(currSet);
     }
 
     public static float checkBinFitness(float[] bin, int binNumber)
@@ -156,7 +118,7 @@ public class geneticAlgo {
         int secInd = get2ndLeastFitP2();
         population_puzzle2.set(ind, child1);
         population_puzzle2.set(secInd, child2);
-        //System.out.println("Crossover");
+        System.out.println("Crossover");
     }
     public static ArrayList<float[]> fixErrors (ArrayList<float[]> list){
         ArrayList<Float> numberSet = ReadFile.read(filename);
@@ -186,7 +148,7 @@ public class geneticAlgo {
         }
         return list;
     }
-    public static void genOffSpring(ArrayList<float[]> parent1, ArrayList<float[]> parent2){
+    public static void genOffSpring(ArrayList<float[]> parent1, ArrayList<float[]> parent2){ // for puzzle1
         ArrayList<float[]> child1 = new ArrayList<>();
         ArrayList<float[]> child2 = new ArrayList<>();
         Iterator<float[]> iterator = population.get(getFittestP1()).iterator();
@@ -240,9 +202,6 @@ public class geneticAlgo {
 	            child2.tower.set(b, temp);
         	}
         }
-        
-        //child1 = fixErrors(child1);
-        //child2 = fixErrors(child2);
         replaceLeastFit_P2(child1, child2);
     }
     public static int getFittestP1(){
@@ -381,41 +340,6 @@ public class geneticAlgo {
         
         return second_bestFitIndex;
     }
-    /*
-    public static int getLeastFit(){
-        int minFit = 0;
-        int bestFit = 0;
-        for(int i = 0; i < population.size(); i++){
-            int currFit = 0;
-            for(int j = 0; j < population.get(i).length; j++){
-                if(population.get(i)[j] == 0){
-                    currFit++;
-                }
-            }
-            if (currFit  > minFit){
-                bestFit = i;
-                minFit = currFit;
-            }
-        }
-        return bestFit;
-    }
-    public static void mutate(){
-        int mutationPoint = (int) Math.floor(Math.random() * groupSize);
-        if(population.get(getFittest())[mutationPoint] == 1){
-            population.get(getFittest())[mutationPoint] = 0;
-        }
-        else{
-            population.get(getFittest())[mutationPoint] = 1;
-        }
-        mutationPoint = (int) Math.floor(Math.random() * groupSize);
-        if(population.get(get2ndFittest())[mutationPoint] == 1){
-            population.get(get2ndFittest())[mutationPoint] = 0;
-        }
-        else{
-            population.get(get2ndFittest())[mutationPoint] = 1;
-        }
-    }
-    */
     
     private static int checkTowerFitness(Tower tower) {
 		
@@ -490,33 +414,6 @@ public class geneticAlgo {
 		    }
     	}
     }
-    /*(
-    public static int get2ndLeastFit(){
-        int minFit = 0;
-        int secondMinFit = 0;
-        int secondMinIndex = 0;
-        int minIndex = 0;
-        for(int i = 0; i < population.size(); i++){
-            int currFit = 0;
-            for(int j = 0; j < population.get(i).length; j++){
-                if(population.get(i)[j] == 0){
-                    currFit++;
-                }
-            }
-            if (currFit  > minFit){
-                secondMinIndex = minIndex;
-                minIndex = i;
-                minFit = currFit;
-            }
-            else if (currFit > secondMinFit){
-                secondMinFit = currFit;
-                secondMinIndex = i;
-
-            }
-        }
-        return secondMinIndex;
-    }
-    */
     public static void main(String[] args) {
         filename = args[1];
     	int mode = Integer.parseInt(args[0]);
@@ -543,7 +440,7 @@ public class geneticAlgo {
                             bestpopulation_puzzle1.add(iterator.next().clone());
                         }
                     }
-                    if (rand.nextInt() % 9 > 6) {
+                    if (rand.nextInt() % 9 > 3) {
                         mutate_puzzle1();
                         System.out.println("* Mutation *");
                     }
@@ -565,24 +462,6 @@ public class geneticAlgo {
             }
         }
     }
-
-
-
-    public static void printout()
-    {
-        for(int i = 0; i < PopSize; i++)
-		{
-            System.out.println(i);
-            for (float[] bin : population.get(i))
-            {
-                for (float e : bin)
-                {
-                    System.out.print(e + "\t");
-                }
-                System.out.print("\n");
-            }
-        }
-    }
     public static void printout_oneBin(){
         int binNumber = 1;
         for (float[] bin : bestpopulation_puzzle1)
@@ -594,24 +473,6 @@ public class geneticAlgo {
             System.out.print("Bin: " + binNumber + " Fitness: " + checkBinFitness(bin, binNumber));
             System.out.print("\n");
             binNumber++;
-        }
-    }
-    public static void printout_withfit()
-    {
-        for(int i = 0; i < PopSize; i++)
-        {
-            System.out.println(i);
-            int binNumber = 1;
-            for (float[] bin : population.get(i))
-            {
-                for (float e : bin)
-                {
-                    System.out.print(e + "\t");
-                }
-                System.out.print("Bin: " + binNumber + " Fitness: " + checkBinFitness(bin, binNumber));
-                System.out.print("\n");
-                binNumber++;
-            }
         }
     }
     public static void puzzle1()
@@ -629,9 +490,7 @@ public class geneticAlgo {
     	float checkTime = (Float.parseFloat(timer)) * 1000000000;
     	float endTime = 0;
     	while (endTime - startTime < checkTime) {
-            if(genCount % 10000 == 0) {
-                System.out.println("Generation: " + genCount + " Fitness " + checkTowerFitness(population_puzzle2.get(getFittestP2())));
-            }
+    		System.out.println("Generation: " + genCount + " Fitness " + checkTowerFitness(population_puzzle2.get(getFittestP2())));
     		if (bestScore < checkTowerFitness(population_puzzle2.get(getFittestP2()))) {
     			bestScore = checkTowerFitness(population_puzzle2.get(getFittestP2()));
     			bestGen = genCount;
@@ -644,15 +503,15 @@ public class geneticAlgo {
     		}
     		if (rand.nextInt() % 15 > 12) {
     			mutate_puzzle2("remove");
-    			//System.out.println("* Mutation - REMOVE*");
+    			System.out.println("* Mutation - REMOVE*");
     		}
     		else if (rand.nextInt() % 15 > 10) {
     			mutate_puzzle2("add");
-    			//System.out.println("* Mutation - ADD *");
+    			System.out.println("* Mutation - ADD *");
     		}
     		else if (rand.nextInt() % 15 > 8) {
     			mutate_puzzle2("add");
-    			//System.out.println("* Mutation - SWAP *");
+    			System.out.println("* Mutation - SWAP *");
     		}
     		Tower parent1 = population_puzzle2.get(getFittestP2());
     		Tower parent2 = population_puzzle2.get(get2ndFittestP2());
@@ -660,23 +519,12 @@ public class geneticAlgo {
     		genCount++;
     		endTime = System.nanoTime();
     	}
-    	/*for(Tower t : population_puzzle2)			//printout CURRENT POPulation
-        {
-        	//Collections.shuffle(pieces);
-//        	Tower towerX  = new Tower(pieces);
-//        	population_puzzle2.add(towerX);
-        	t.printout();
-        	System.out.print("Fitness: " + checkTowerFitness(t));
-        	System.out.print("\n\n");
-        }*/
     	System.out.println("Pop Size:" + population_puzzle2.size());
     	System.out.println("Ran for: " + timer + " seconds");
     	System.out.println("Solution found at in Generation: " + bestGen + " at fitness: " + bestScore);
     	bestTower.printout();
     	System.out.print("Fitness: " + checkTowerFitness(bestTower));
     	System.out.print("\n\n");
-        
-         //System.out.println("IS ANYTHING HERE ^^^^^^^^^");
     }
 	
 }
