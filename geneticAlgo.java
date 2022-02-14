@@ -1,4 +1,7 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Random;
 public class geneticAlgo {
     static int PopSize = 10;
     static int puzzle1PopSize = 40;
@@ -235,8 +238,8 @@ public class geneticAlgo {
     }
     public static void main(String[] args) {
         filename = args[1];
-    	int mode = Integer.parseInt(args[0]);
-    	switch(mode) {
+        int mode = Integer.parseInt(args[0]);
+        switch(mode) {
 
             case 1: {
                 puzzle1();
@@ -250,6 +253,9 @@ public class geneticAlgo {
                 float endTime = 0;
                 while (endTime - startTime < checkTime) {
                     System.out.println("Generation: " + genCount + " Fitness " + checkAllBinsFit(population.get(getFittestP1())));
+//                        if (genCount%100 == 1){
+//                            System.out.println(checkAllBinsFit(population.get(getFittestP1())));
+//                        }
                     if (bestScore < checkAllBinsFit(population.get(getFittestP1()))) {
                         bestScore = checkAllBinsFit(population.get(getFittestP1()));
                         bestGen = genCount;
@@ -282,7 +288,7 @@ public class geneticAlgo {
     public static void printout()
     {
         for(int i = 0; i < PopSize; i++)
-		{
+        {
             System.out.println(i);
             for (float[] bin : population.get(i))
             {
