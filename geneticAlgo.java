@@ -12,7 +12,7 @@ public class geneticAlgo {
     static Tower bestTower;
     
     static String filename;
-    static double bestScore = 0;
+    static double bestScore = -1;
     static int bestGen = 0;
     int fittest[] = {1,1,1,1,1,1,1,1,1,1};
     /*
@@ -60,8 +60,20 @@ public class geneticAlgo {
         {
         	ArrayList<TowerPiece> shufflePieces = pieces;
         	Collections.shuffle(shufflePieces, new Random());
+        	int x = new Random().nextInt(shufflePieces.size()-1)+1;
+        	int y = new Random().nextInt(x);
+        	//List<TowerPiece> selectPieces = shufflePieces.subList(y, x);
+        	ArrayList<TowerPiece> out = new ArrayList<TowerPiece>();
+//        	for (TowerPiece tp : shufflePieces)
+//        	{
+//        		if (!(selectPieces.contains(tp)))
+//        		{
+//        			out.add(tp);
+//z
+//        		}
+//        	}
         	//System.out.print(shufflePieces);
-        	Tower towerX  = new Tower(shufflePieces);
+        	Tower towerX  = new Tower(new ArrayList<TowerPiece>(), shufflePieces);
         	population_puzzle2.add(towerX);
         	//towerX.printout();
         	System.out.print("\n");
@@ -170,6 +182,13 @@ public class geneticAlgo {
         population.set(ind, child1);
         population.set(secInd, child2);
     }
+    public static void replaceLeastFit_P2(Tower child1, Tower child2){
+        int ind = getLeastFitP2();
+        int secInd = get2ndLeastFitP2();
+        population_puzzle2.set(ind, child1);
+        population_puzzle2.set(secInd, child2);
+        System.out.println("Crossover");
+    }
     public static ArrayList<float[]> fixErrors (ArrayList<float[]> list){
         ArrayList<Float> numberSet = ReadFile.read(filename);
         ArrayList<int[]> repeatNum = new ArrayList<>();
@@ -225,16 +244,24 @@ public class geneticAlgo {
     	TowerPiece temp;
     	int size1 = parent1.tower.size();
     	int size2 = parent2.tower.size();
-    	int lowerSize =(size1>size2) ? (size1):(size2);	
+    	int lowerSize =(size1>size2) ? (size2):(size1);	
         int crossoverPoint = (int) Math.floor(Math.random() * lowerSize);
-        for(int b = 0; b < crossoverPoint; b++) {
-            temp = child1.tower.get(b);
-            child1.tower.set(b, parent2.tower.get(b)); 
-            child2.tower.set(b, temp);
+        if (lowerSize == 0)
+        {
+        	//
         }
+        else
+        {
+        	for(int b = 0; b < crossoverPoint; b++) {									//crossover
+	            temp = child1.tower.get(b);
+	            child1.tower.set(b, parent2.tower.get(b)); 
+	            child2.tower.set(b, temp);
+        	}
+        }
+        
         //child1 = fixErrors(child1);
         //child2 = fixErrors(child2);
-       // replaceLeastFit(child1, child2);
+        replaceLeastFit_P2(child1, child2);
     }
     /*
     public static int get2ndFittest(){
@@ -378,6 +405,42 @@ public class geneticAlgo {
         }
         return bestFitIndex;
     }
+    public static int getLeastFitP2(){
+        float minFitValue = Integer.MAX_VALUE;
+        int bestFitIndex = 0;
+
+        for(int i = 0; i < population.size(); i++){
+            float currFit = 0;
+            currFit = checkAllBinsFit(population.get(i));
+            if (currFit < minFitValue){
+                bestFitIndex = i;
+                minFitValue = currFit;
+            }
+        }
+        return bestFitIndex;
+    }
+    public static int get2ndLeastFitP2(){
+    	
+    	float minFitValue = Integer.MAX_VALUE;
+        int bestFitIndex = 0;
+        int second_bestFitIndex = 0;
+        float second_minFitValue = Integer.MAX_VALUE;
+        for(int i = 0; i < population_puzzle2.size(); i++){
+            float currFit = 0;
+            currFit = population_puzzle2.get(i).calcScore();
+            if (currFit < minFitValue){
+                second_bestFitIndex = bestFitIndex;
+                bestFitIndex = i;
+                minFitValue = currFit;
+            }
+            else if (currFit < second_minFitValue){
+                second_minFitValue = currFit;
+                second_bestFitIndex = i;
+            }
+        }
+        
+        return second_bestFitIndex;
+    }
     /*
     public static int getLeastFit(){
         int minFit = 0;
@@ -440,23 +503,52 @@ public class geneticAlgo {
             population.get(mutated).get(bin2)[mutationPoint2] = swapper1;
         }
     }
-    public static void mutate_puzzle2()
+    public static void mutate_puzzle2(String operation)
     {
-        Random rand = new Random();
-    	TowerPiece swapper1;
-    	TowerPiece swapper2;
-    	
-        int mutated = rand.nextInt(population_puzzle2.size());
-        int mutationCount = rand.nextInt(5);
-        for (int i = 0; i < mutationCount; i++){
-
-            int mutationPoint = rand.nextInt(population_puzzle2.get(mutated).tower.size());		//TODO rand.nextInt( )
-            int mutationPoint2 = rand.nextInt(population_puzzle2.get(mutated).tower.size());
-            swapper1 = population_puzzle2.get(mutated).tower.get(mutationPoint);
-            swapper2 = population_puzzle2.get(mutated).tower.get(mutationPoint2);
-            population_puzzle2.get(mutated).tower.set(mutationPoint, swapper2);
-            population_puzzle2.get(mutated).tower.set(mutationPoint2, swapper1);
-        }
+    	switch(operation)
+    	{
+			case("add"):
+			{
+				Random rand = new Random();
+		    	TowerPiece swapper1;
+		    	TowerPiece swapper2;
+		    	
+		        int mutated = rand.nextInt(population_puzzle2.size());
+		        //int mutationCount = rand.nextInt(5);
+		        population_puzzle2.get(mutated).putRandom();
+		        break;
+			}
+			case("remove"):
+			{
+				Random rand = new Random();
+		    	TowerPiece swapper1;
+		    	TowerPiece swapper2;
+		    	
+		        int mutated = rand.nextInt(population_puzzle2.size());
+		        //int mutationCount = rand.nextInt(5);
+		        population_puzzle2.get(mutated).pullRandom();
+		        break;
+			}
+			case("swap"):
+			{
+				Random rand = new Random();
+		    	TowerPiece swapper1;
+		    	TowerPiece swapper2;
+		    	
+		        int mutated = rand.nextInt(population_puzzle2.size());
+		        int mutationCount = rand.nextInt(5);
+		        for (int i = 0; i < mutationCount; i++){
+		
+		            int mutationPoint = rand.nextInt(population_puzzle2.get(mutated).tower.size());		//TODO rand.nextInt( )
+		            int mutationPoint2 = rand.nextInt(population_puzzle2.get(mutated).tower.size());
+		            swapper1 = population_puzzle2.get(mutated).tower.get(mutationPoint);
+		            swapper2 = population_puzzle2.get(mutated).tower.get(mutationPoint2);
+		            population_puzzle2.get(mutated).tower.set(mutationPoint, swapper2);
+		            population_puzzle2.get(mutated).tower.set(mutationPoint2, swapper1);
+			}
+		        break;
+		    }
+    	}
     }
     /*(
     public static int get2ndLeastFit(){
@@ -617,16 +709,20 @@ public class geneticAlgo {
 //                	 return;
 //                 }
              }
-             if (rand.nextInt() % 9 > 6) {
-                 mutate_puzzle2();
-                 System.out.println("* Mutation *");
+             if (rand.nextInt() % 15 > 12) {
+                 mutate_puzzle2("remove");
+                 System.out.println("* Mutation - REMOVE*");
              }
-             else if (rand.nextInt() % 9 < 3) {
-                 mutate_puzzle2();
-                 System.out.println("* Mutation *");
+             else if (rand.nextInt() % 15 > 10) {
+                 mutate_puzzle2("add");
+                 System.out.println("* Mutation - ADD *");
+             }
+             else if (rand.nextInt() % 15 > 8) {
+                 mutate_puzzle2("add");
+                 System.out.println("* Mutation - SWAP *");
              }
              Tower parent1 = population_puzzle2.get(getFittestP2());
-             Tower parent2 = population_puzzle2.get(getFittestP2());
+             Tower parent2 = population_puzzle2.get(get2ndFittestP2());
              genOffSpring_P2(parent1, parent2);
              genCount++;
              endTime = System.nanoTime();
@@ -647,7 +743,7 @@ public class geneticAlgo {
          	System.out.print("Fitness: " + checkTowerFitness(bestTower));
          	System.out.print("\n\n");
         
-         System.out.println("IS ANYTHING HERE ^^^^^^^^^");
+         //System.out.println("IS ANYTHING HERE ^^^^^^^^^");
     }
 	
 }
